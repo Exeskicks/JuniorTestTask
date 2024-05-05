@@ -1,4 +1,4 @@
-package com.payment.TestTaskJunior.controller.response;
+package com.payment.TestTaskJunior.controller.payload.response;
 
 
 import lombok.*;

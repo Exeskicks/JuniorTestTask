@@ -1,6 +1,5 @@
 package com.payment.TestTaskJunior.service;
 
-import com.payment.TestTaskJunior.controller.response.UserDto;
 import com.payment.TestTaskJunior.model.UserRole;
 
 import java.util.Optional;

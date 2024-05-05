@@ -1,4 +1,4 @@
-package com.payment.TestTaskJunior.controller.response;
+package com.payment.TestTaskJunior.controller.payload.request;
 
 public record RegistrationDto(
         String phoneNumber,

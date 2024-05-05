@@ -1,7 +1,7 @@
 package com.payment.TestTaskJunior.controller;
 
 
-import com.payment.TestTaskJunior.controller.response.RegistrationDto;
+import com.payment.TestTaskJunior.controller.payload.request.RegistrationDto;
 import com.payment.TestTaskJunior.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
