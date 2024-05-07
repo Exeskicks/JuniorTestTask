@@ -1,15 +1,23 @@
-CREATE TABLE IF NOT EXISTS payment (
+CREATE TABLE IF NOT EXISTS payment
+(
     id           BIGSERIAL PRIMARY KEY,
     balance      NUMERIC(38, 2),
-    date         TIMESTAMP(6),
+    date         TIMESTAMP,
     phone_number VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS user_entity (
+CREATE TABLE IF NOT EXISTS user_entity
+(
     id           BIGSERIAL PRIMARY KEY,
+    username     VARCHAR(50),
+    first_name   VARCHAR(50),
+    last_name    VARCHAR(50),
+    email        VARCHAR(100),
+    gender       VARCHAR(10),
+    birth_date   DATE,
     balance      NUMERIC(38, 2),
     password     VARCHAR(255),
-    phone_number VARCHAR(255)
+    phone_number VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS user_entity_payment_history

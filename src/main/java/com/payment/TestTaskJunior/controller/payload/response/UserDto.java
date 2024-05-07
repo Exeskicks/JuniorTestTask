@@ -4,15 +4,17 @@ package com.payment.TestTaskJunior.controller.payload.response;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Builder
-public class UserDto {
+public record UserDto (
+    String firstName,
+    String lastName,
+    String email,
+    String gender,
+    LocalDate birthday
+){
 
-    private Long userId;
-    private String phoneNumber;
-    private BigDecimal balance;
+
 }
