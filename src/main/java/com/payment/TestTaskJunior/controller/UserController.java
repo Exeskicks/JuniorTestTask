@@ -19,7 +19,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getMyAccount());
     }
 
-    @PostMapping
+    @PutMapping
     public ResponseEntity<UserDto> updateMyAccount(@RequestBody UserDto userDto){
         return ResponseEntity.ok(userService.updateMyAccount(userDto));
     }
