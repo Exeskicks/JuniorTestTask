@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 
 @RestController
 @RequestMapping("/api/payment")
@@ -21,20 +23,20 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @GetMapping("/current-balance")
-    public ResponseEntity<?> currentBalance() {
+    public ResponseEntity<?> currentBalance(Principal principal) {
         return ResponseEntity
-            .ok(paymentService.currentBalanceByAuthorityUser());
+            .ok(paymentService.currentBalanceByAuthorityUser(principal));
     }
 
     @PostMapping("/pay-phone")
-    public ResponseEntity<?> payPhone(@RequestBody PayPhoneDto payPhoneDto) {
+    public ResponseEntity<?> payPhone(@RequestBody PayPhoneDto payPhoneDto, Principal principal) {
         return ResponseEntity
-            .ok(paymentService.payPhone(payPhoneDto));
+            .ok(paymentService.payPhone(payPhoneDto, principal));
     }
 
     @GetMapping("/history")
-    public ResponseEntity<?> getHistory(Pageable pageable) {
+    public ResponseEntity<?> getHistory(Pageable pageable, Principal principal) {
         return ResponseEntity
-            .ok(paymentService.getHistory(pageable));
+            .ok(paymentService.getHistory(pageable, principal));
     }
 }

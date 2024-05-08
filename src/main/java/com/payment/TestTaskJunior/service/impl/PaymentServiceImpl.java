@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 
@@ -26,59 +27,57 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
 
     @Override
-    public PaymentDto currentBalanceByAuthorityUser() {
-        UserAccount user = getAuthorizationUser();
+    public PaymentDto currentBalanceByAuthorityUser(Principal principal) {
+
+        UserAccount user = getAuthorizationUser(principal);
 
         return new PaymentDto(user.getPhoneNumber(), user.getBalance());
     }
 
-    private UserAccount getAuthorizationUser() {
-        String phoneNumber = ((User) SecurityContextHolder.getContext().getAuthentication()
-            .getPrincipal()).getUsername();
+    private UserAccount getAuthorizationUser(Principal principal) {
 
-        return userRepository.findUserByPhoneNumber(phoneNumber)
+        return userRepository.findUserByPhoneNumber(principal.getName())
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @Override
     @Transactional
-    public PayResultDto payPhone(PayPhoneDto payPhoneDto) {
+    public PayResultDto payPhone(PayPhoneDto payPhoneDto, Principal principal) {
         String phoneNumber = payPhoneDto.phoneNumber();
         BigDecimal amount = payPhoneDto.amount();
-        return userRepository
-            .findUserByPhoneNumber(phoneNumber)
-            .map(usr -> {
-                BigDecimal subtract = usr.getBalance().subtract((amount));
-                if (subtract.compareTo(BigDecimal.ZERO) < 0) {
-                    return new PayResultDto("Недостаточно средств");
-                }
-                usr.setBalance(subtract);
-                Payment savedPayment = paymentRepository.save(getPayment(amount, phoneNumber));
-                usr.getPaymentHistory().add(savedPayment);
-                userRepository.save(usr);
-                String message = "Оплата на номер %s прошла успешно, текущий баланс %.2f";
-                return new PayResultDto(
-                    message.formatted(phoneNumber, usr.getBalance().doubleValue()));
-            })
+
+        UserAccount paymentReceiver = userRepository.findUserByPhoneNumber(phoneNumber)
             .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserAccount paymentSender = getAuthorizationUser(principal);
+
+        if (paymentSender.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
+            return new PayResultDto("Недостаточно средств");
+        }
+
+        paymentSender.setBalance(paymentSender.getBalance().subtract(amount));
+        userRepository.save(paymentSender);
+
+        paymentReceiver.setBalance(paymentReceiver.getBalance().add(amount));
+
+        userRepository.save(paymentReceiver);
+
+        String message = "Оплата на номер %s прошла успешно, ваш текущий баланс %.2f";
+
+        return new PayResultDto(
+            message.formatted(phoneNumber, paymentSender.getBalance())
+        );
+
     }
 
     @Override
-    public PageImpl<Payment> getHistory(Pageable pageable) {
-        UserAccount user = getAuthorizationUser();
+    public PageImpl<Payment> getHistory(Pageable pageable, Principal principal) {
+        UserAccount user = getAuthorizationUser(principal);
         return new PageImpl<>(user.getPaymentHistory());
 
     }
 
-    private Payment getPayment(BigDecimal amount, String phoneNumber) {
-        Payment payment = new Payment();
-        payment.setBalance(amount);
-        payment.setPhoneNumber(phoneNumber);
-        payment.setDate(LocalDateTime.now());
-        return payment;
-    }
 }
